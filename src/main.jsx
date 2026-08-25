@@ -109,9 +109,8 @@ function IntroOverlay({ onComplete }) {
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const isMobile = window.matchMedia('(max-width: 768px)').matches
 
-    if (reducedMotion || isMobile) {
+    if (reducedMotion) {
       onComplete()
       return undefined
     }
@@ -140,12 +139,11 @@ function IntroOverlay({ onComplete }) {
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [showIntro, setShowIntro] = useState(() => sessionStorage.getItem('prime-reach-intro-seen') !== 'true')
+  const [showIntro, setShowIntro] = useState(true)
   const [review, setReview] = useState({ name: '', rating: 0, message: '' })
   const [reviews, setReviews] = useState([])
 
   const completeIntro = () => {
-    sessionStorage.setItem('prime-reach-intro-seen', 'true')
     setShowIntro(false)
   }
 
