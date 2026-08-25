@@ -6,14 +6,30 @@ html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; }
 a { color: inherit; text-decoration: none; }
 .intro-overlay { position: fixed; inset: 0; z-index: 100; overflow: hidden; background: #050605; color: var(--paper); display: grid; place-items: center; animation: intro-in .5s ease both; }
-.intro-frame, .intro-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
-.intro-frame { object-fit: contain; image-rendering: auto; filter: contrast(1.06) saturate(1.08); }
+.intro-video-bg, .intro-grid, .intro-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+.intro-video-bg {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(204, 251, 69, 0.18), transparent 25%),
+    radial-gradient(circle at 80% 18%, rgba(243, 240, 232, 0.14), transparent 26%),
+    linear-gradient(120deg, rgba(12, 14, 12, 0.75), rgba(18, 20, 18, 0.9)),
+    url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+  filter: saturate(1.1) contrast(1.08) brightness(0.68);
+  transform: scale(1.08);
+  animation: intro-pan 7s ease-in-out infinite alternate;
+}
+.intro-grid {
+  background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+}
 .intro-shade { background: linear-gradient(180deg, rgba(5,6,5,.28), rgba(5,6,5,.68)); }
 .intro-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; animation: intro-content-in 1s .3s ease both; }
 .intro-content img { width: 112px; height: 112px; object-fit: contain; border: 1px solid rgba(243,240,232,.4); border-radius: 12px; margin-bottom: 23px; }
 .intro-content p { font: 500 19px 'DM Mono', monospace; letter-spacing: .11em; margin: 0; }.intro-content p span { color: var(--lime); }.intro-content small { font: 10px 'DM Mono', monospace; color: #c1c7bd; letter-spacing: .08em; text-transform: uppercase; margin-top: 13px; }
 .intro-skip { position: absolute; z-index: 2; right: 5vw; bottom: 48px; border: 1px solid rgba(243,240,232,.5); background: transparent; color: var(--paper); padding: 10px 13px; display: flex; align-items: center; gap: 8px; font: 10px 'DM Mono', monospace; cursor: pointer; }.intro-skip:hover { background: var(--lime); color: var(--ink); border-color: var(--lime); }
-@keyframes intro-in { from { opacity: 0; } to { opacity: 1; } } @keyframes intro-content-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes intro-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-pan { from { transform: scale(1.08) translate3d(-10px, -12px, 0); } to { transform: scale(1.18) translate3d(12px, 8px, 0); } }
+@keyframes intro-content-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 .site-header { height: 78px; padding: 0 5vw; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); position: absolute; width: 100%; z-index: 10; color: var(--paper); }
 .wordmark { font-size: 14px; letter-spacing: .06em; font-weight: 700; display: flex; align-items: center; gap: 8px; }.wordmark b { font-weight: 400; color: var(--lime); font-size: 18px; }.nav-links { display: flex; align-items: center; gap: 32px; font-size: 13px; }.nav-links a { opacity: .78; transition: opacity .2s; }.nav-links a:hover { opacity: 1; }.nav-cta { background: var(--lime); color: var(--ink); padding: 12px 17px; display: flex; align-items: center; gap: 9px; opacity: 1 !important; }.menu-toggle { display: none; background: none; color: var(--paper); border: 0; }
 .hero { background: var(--ink); color: var(--paper); min-height: 720px; padding: 160px 5vw 0; overflow: hidden; }.hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 6vw; max-width: 1400px; margin: auto; }.eyebrow { font-family: 'DM Mono', monospace; text-transform: uppercase; font-size: 10px; letter-spacing: .12em; margin: 0 0 28px; color: var(--muted); }.hero .eyebrow { color: var(--lime); }.hero h1 { font-size: clamp(58px, 8.1vw, 122px); letter-spacing: -.06em; line-height: .85; font-weight: 500; margin: 0; }.hero h1 em, h2 em { font-family: Georgia, serif; font-weight: 400; letter-spacing: -.06em; }.hero-foot { margin-top: 64px; display: flex; align-items: center; gap: 35px; max-width: 390px; }.hero-foot p { font-size: 14px; line-height: 1.5; color: #bfc1ba; margin: 0; }.circle-link { width: 64px; height: 64px; min-width: 64px; border: 1px solid #60645b; border-radius: 50%; display: grid; place-items: center; color: var(--lime); transition: background .2s, color .2s; }.circle-link:hover { background: var(--lime); color: var(--ink); }.hero-art { position: relative; padding: 25px 0 0 20px; }.art-frame { height: 435px; border: 1px solid #65695f; background: radial-gradient(circle at 65% 44%, #707862, #343833 38%, #1b1d1b 73%); display: flex; flex-direction: column; justify-content: space-between; padding: 17px; position: relative; }.art-frame:after { content: ''; position: absolute; inset: 12px; border: 1px solid rgba(204,251,69,.35); pointer-events: none; }.art-topline, .art-bottomline { font: 10px 'DM Mono', monospace; color: #c6c9bd; display: flex; justify-content: space-between; position: relative; z-index: 1; }.art-center { align-self: center; display: flex; flex-direction: column; gap: 18px; align-items: center; text-align: center; color: var(--lime); font-size: 30px; line-height: .95; letter-spacing: -.04em; }.art-caption { position: absolute; right: -20px; bottom: 10px; font: 11px 'DM Mono', monospace; line-height: 1.4; color: var(--lime); transform: rotate(-90deg) translateX(100%); transform-origin: bottom right; }.ticker { border-top: 1px solid #494d47; margin-top: 100px; height: 63px; display: flex; align-items: center; justify-content: space-between; gap: 30px; color: #858a7e; font: 10px 'DM Mono', monospace; letter-spacing: .08em; white-space: nowrap; }

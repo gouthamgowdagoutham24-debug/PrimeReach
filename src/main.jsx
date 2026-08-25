@@ -105,8 +105,6 @@ function ServiceSection({ service, index }) {
 }
 
 function IntroOverlay({ onComplete }) {
-  const [frame, setFrame] = useState(1)
-
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -115,23 +113,20 @@ function IntroOverlay({ onComplete }) {
       return undefined
     }
 
-    const frameTimer = window.setInterval(() => {
-      setFrame((currentFrame) => {
-        if (currentFrame >= 221) {
-          window.clearInterval(frameTimer)
-          window.setTimeout(onComplete, 1800)
-          return currentFrame
-        }
-        return currentFrame + 1
-      })
-    }, 110)
-    return () => window.clearInterval(frameTimer)
+    const timeoutId = window.setTimeout(onComplete, 3200)
+    return () => window.clearTimeout(timeoutId)
   }, [onComplete])
 
   return (
     <div className="intro-overlay" role="dialog" aria-label="Prime Reach intro" aria-modal="true">
-      <img className="intro-frame" src={`/intro-frames/ezgif-frame-${String(frame).padStart(3, '0')}.jpg`} alt="" />
-      <div className="intro-shade" />
+      <div className="intro-video-bg" aria-hidden="true" />
+      <div className="intro-grid" aria-hidden="true" />
+      <div className="intro-shade" aria-hidden="true" />
+      <div className="intro-content" aria-live="polite">
+        <img src={logoImage} alt="Prime Reach logo" />
+        <p>PRIME REACH <span>x</span> Y CUTS</p>
+        <small>Creative media studio</small>
+      </div>
       <button className="intro-skip" onClick={onComplete} aria-label="Skip intro" title="Skip intro"><X size={18} /></button>
     </div>
   )
