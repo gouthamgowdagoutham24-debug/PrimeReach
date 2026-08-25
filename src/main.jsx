@@ -110,25 +110,15 @@ function IntroOverlay({ onComplete }) {
 
     if (reducedMotion) {
       onComplete()
-      return undefined
     }
-
-    const timeoutId = window.setTimeout(onComplete, 3200)
-    return () => window.clearTimeout(timeoutId)
   }, [onComplete])
 
   return (
     <div className="intro-overlay" role="dialog" aria-label="Prime Reach intro" aria-modal="true">
-      <video className="intro-video" autoPlay muted playsInline loop onEnded={onComplete}>
+      <video className="intro-video" autoPlay muted playsInline preload="auto" onCanPlay={() => {}} onEnded={onComplete}>
         <source src="/intro-video.mp4" type="video/mp4" />
       </video>
-      <div className="intro-grid" aria-hidden="true" />
-      <div className="intro-shade" aria-hidden="true" />
-      <div className="intro-content" aria-live="polite">
-        <img src={logoImage} alt="Prime Reach logo" />
-        <p>PRIME REACH <span>x</span> Y CUTS</p>
-        <small>Creative media studio</small>
-      </div>
+      <div className="intro-vignette" aria-hidden="true" />
       <button className="intro-skip" onClick={onComplete} aria-label="Skip intro" title="Skip intro"><X size={18} /></button>
     </div>
   )
