@@ -119,12 +119,12 @@ function IntroOverlay({ onComplete }) {
       setFrame((currentFrame) => {
         if (currentFrame >= 221) {
           window.clearInterval(frameTimer)
-          window.setTimeout(onComplete, 420)
+          window.setTimeout(onComplete, 1800)
           return currentFrame
         }
         return currentFrame + 1
       })
-    }, 34)
+    }, 110)
     return () => window.clearInterval(frameTimer)
   }, [onComplete])
 
