@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ArrowUpRight, AtSign, ChevronDown, Menu, Phone, Play, Send, Star, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import logoImage from '../pr.jpeg'
 import './styles.css'
 
 const services = [
@@ -108,10 +109,13 @@ function IntroOverlay({ onComplete }) {
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reducedMotion) {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches
+
+    if (reducedMotion || isMobile) {
       onComplete()
       return undefined
     }
+
     const frameTimer = window.setInterval(() => {
       setFrame((currentFrame) => {
         if (currentFrame >= 221) {
@@ -156,7 +160,7 @@ function App() {
     <div className="app-shell">
       {showIntro && <IntroOverlay onComplete={completeIntro} />}
       <header className="site-header">
-        <a className="wordmark" href="#top" aria-label="Prime Reach x Y Cuts home"><img src="/pr.jpeg" alt="Prime Reach logo" /><span>PRIME REACH</span><b>x</b><span>Y CUTS</span></a>
+        <a className="wordmark" href="#top" aria-label="Prime Reach x Y Cuts home"><img src={logoImage} alt="Prime Reach logo" /><span>PRIME REACH</span><b>x</b><span>Y CUTS</span></a>
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
         <nav className={menuOpen ? 'nav-links nav-links--open' : 'nav-links'}>
           <a href="#services" onClick={() => setMenuOpen(false)}>Services</a><a href="#instagram" onClick={() => setMenuOpen(false)}>Instagram</a><a href="#notes" onClick={() => setMenuOpen(false)}>Notes</a><a href="#contact" className="nav-cta" onClick={() => setMenuOpen(false)}>Start a project <ArrowUpRight size={16} /></a>
@@ -167,7 +171,7 @@ function App() {
         <section className="hero">
           <div className="hero-grid">
             <div className="hero-copy">
-              <div className="hero-brand reveal"><img src="/pr.jpeg" alt="Prime Reach logo" /><span>PRIME REACH<br /><small>Creative media studio</small></span></div>
+              <div className="hero-brand reveal"><img src={logoImage} alt="Prime Reach logo" /><span>PRIME REACH<br /><small>Creative media studio</small></span></div>
               <p className="eyebrow reveal">Video · Design · Digital media agency</p>
               <h1 className="reveal reveal-delay-1">Content that<br /><em>reaches.</em><br />Edits that<br /><em>convert.</em></h1>
               <div className="hero-foot reveal reveal-delay-2"><p>We turn raw ideas into sharp, scroll-stopping content for people and brands with somewhere to go.</p><a href="#services" className="circle-link" aria-label="Explore services"><ArrowUpRight size={25} /></a></div>
