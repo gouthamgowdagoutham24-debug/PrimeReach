@@ -126,7 +126,7 @@ function IntroOverlay({ onComplete }) {
         onCanPlay={() => setVideoReady(true)}
         onEnded={onComplete}
       >
-        <source src="/intro-video.mp4" type="video/mp4" />
+        <source src="/intro-video-compressed.mp4" type="video/mp4" />
       </video>
       <div className="intro-vignette" aria-hidden="true" />
       <button className="intro-skip" onClick={onComplete} aria-label="Skip intro" title="Skip intro"><X size={18} /></button>
