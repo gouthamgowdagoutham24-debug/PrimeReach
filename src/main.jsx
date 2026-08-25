@@ -76,7 +76,7 @@ const services = [
 ]
 
 function ServiceSection({ service, index }) {
-  const [isOpen, setIsOpen] = useState(index === 0)
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <section className={`service-section ${index % 2 ? 'service-section--light' : ''} ${index > 1 ? 'service-section--warm' : ''} ${isOpen ? 'service-section--open' : ''}`} id={`service-${service.number}`}>
