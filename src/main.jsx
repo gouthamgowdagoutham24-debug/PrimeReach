@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ArrowUpRight, AtSign, ChevronDown, Menu, Phone, Play, Send, Star, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import logoImage from '../pr.jpeg'
+import introVideo from '../imp fileeee.mp4'
 import './styles.css'
 
 const services = [
@@ -119,7 +120,9 @@ function IntroOverlay({ onComplete }) {
 
   return (
     <div className="intro-overlay" role="dialog" aria-label="Prime Reach intro" aria-modal="true">
-      <div className="intro-video-bg" aria-hidden="true" />
+      <video className="intro-video" autoPlay muted playsInline loop onEnded={onComplete}>
+        <source src={introVideo} type="video/mp4" />
+      </video>
       <div className="intro-grid" aria-hidden="true" />
       <div className="intro-shade" aria-hidden="true" />
       <div className="intro-content" aria-live="polite">
