@@ -105,6 +105,8 @@ function ServiceSection({ service, index }) {
 }
 
 function IntroOverlay({ onComplete }) {
+  const [videoReady, setVideoReady] = useState(false)
+
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -115,7 +117,15 @@ function IntroOverlay({ onComplete }) {
 
   return (
     <div className="intro-overlay" role="dialog" aria-label="Prime Reach intro" aria-modal="true">
-      <video className="intro-video" autoPlay muted playsInline preload="auto" onCanPlay={() => {}} onEnded={onComplete}>
+      <video
+        className={videoReady ? 'intro-video intro-video--ready' : 'intro-video'}
+        autoPlay
+        muted
+        playsInline
+        preload="metadata"
+        onCanPlay={() => setVideoReady(true)}
+        onEnded={onComplete}
+      >
         <source src="/intro-video.mp4" type="video/mp4" />
       </video>
       <div className="intro-vignette" aria-hidden="true" />
