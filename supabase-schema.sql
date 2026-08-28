@@ -27,5 +27,4 @@ create policy "Anyone can update review likes"
   on public.reviews for update
   using (approved = true)
   with check (approved = true);
-
 grant select, insert, update on public.reviews to anon, authenticated;
