@@ -1,8 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ArrowUpRight, AtSign, ChevronDown, Menu, Phone, Play, Send, Star, X } from 'lucide-react'
+import { ArrowUpRight, AtSign, ChevronDown, Heart, Menu, Phone, Play, Send, Star, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import logoImage from '../pr.jpeg'
+import { supabase } from './supabase'
 import './styles.css'
 
 const services = [
@@ -138,7 +139,40 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showIntro, setShowIntro] = useState(true)
   const [review, setReview] = useState({ name: '', rating: 0, message: '' })
-  const [reviews, setReviews] = useState([])
+  const [reviews, setReviews] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('prime-reach-reviews') || '[]')
+    } catch {
+      return []
+    }
+  })
+  const [reviewsLoading, setReviewsLoading] = useState(Boolean(supabase))
+  const [likedReviews, setLikedReviews] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('prime-reach-liked-reviews') || '[]')
+    } catch {
+      return []
+    }
+  })
+  const [showAllReviews, setShowAllReviews] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('prime-reach-reviews', JSON.stringify(reviews))
+  }, [reviews])
+
+  useEffect(() => {
+    localStorage.setItem('prime-reach-liked-reviews', JSON.stringify(likedReviews))
+  }, [likedReviews])
+
+  useEffect(() => {
+    if (!supabase) return
+    const loadReviews = async () => {
+      const { data, error } = await supabase.from('reviews').select('*').eq('approved', true).order('likes', { ascending: false }).order('created_at', { ascending: false })
+      if (!error) setReviews(data.map((item) => ({ id: item.id, name: item.name, rating: item.rating, message: item.message, likes: item.likes, createdAt: new Date(item.created_at).getTime() })))
+      setReviewsLoading(false)
+    }
+    loadReviews()
+  }, [])
 
   const completeIntro = () => {
     setShowIntro(false)
@@ -147,9 +181,21 @@ function App() {
   const submitReview = (event) => {
     event.preventDefault()
     if (!review.name || !review.rating || !review.message) return
-    setReviews([{ ...review }, ...reviews])
+    const newReview = { ...review, id: crypto.randomUUID(), likes: 0, createdAt: Date.now() }
+    setReviews((currentReviews) => [newReview, ...currentReviews])
+    if (supabase) supabase.from('reviews').insert({ id: newReview.id, name: newReview.name, rating: newReview.rating, message: newReview.message }).then(({ error }) => { if (error) console.error('Could not save review:', error.message) })
     setReview({ name: '', rating: 0, message: '' })
   }
+
+  const toggleReviewLike = (reviewId) => {
+    const hasLiked = likedReviews.includes(reviewId)
+    setLikedReviews((currentLikes) => hasLiked ? currentLikes.filter((id) => id !== reviewId) : [...currentLikes, reviewId])
+    setReviews((currentReviews) => currentReviews.map((item) => item.id === reviewId ? { ...item, likes: Math.max(0, (item.likes || 0) + (hasLiked ? -1 : 1)) } : item))
+    if (supabase) supabase.from('reviews').select('likes').eq('id', reviewId).single().then(({ data, error }) => { if (!error) return supabase.from('reviews').update({ likes: Math.max(0, (data.likes || 0) + (hasLiked ? -1 : 1)) }).eq('id', reviewId) })
+  }
+
+  const rankedReviews = [...reviews].sort((first, second) => (second.likes || 0) - (first.likes || 0) || (second.createdAt || 0) - (first.createdAt || 0))
+  const featuredReviews = rankedReviews.slice(0, 3)
 
   return (
     <div className="app-shell">
@@ -187,7 +233,8 @@ function App() {
 
         <section className="contact-section" id="contact"><div className="contact-inner"><div><p className="eyebrow">For inquiries & custom quotes</p><h2>Let’s make<br /><em>something land.</em></h2></div><div className="contact-actions"><a className="contact-link primary" href="tel:+918105962281"><Phone size={19} /> Call the studio <ArrowUpRight size={18} /></a><a className="contact-link" href="https://instagram.com/madxx.zone" target="_blank" rel="noreferrer"><AtSign size={19} /> @madxx.zone <ArrowUpRight size={18} /></a><a className="contact-link" href="mailto:primereach18@gmail.com"><AtSign size={19} /> primereach18@gmail.com <ArrowUpRight size={18} /></a><p className="contact-numbers">8105962281 · 6362465754<br />8088601106 · 6362378416</p></div></div></section>
 
-        <section className="reviews-section" id="reviews"><div className="section-inner reviews-inner"><div className="reviews-title"><p className="eyebrow">Client notes</p><h2>Tell us how<br /><em>we did.</em></h2><p>Worked with us? Leave a quick review for the next brand finding their creative team.</p></div><form className="review-form" onSubmit={submitReview}><label>Your name<input value={review.name} onChange={(event) => setReview({ ...review, name: event.target.value })} placeholder="Name or brand" /></label><fieldset><legend>Your rating</legend><div className="star-picker">{[1, 2, 3, 4, 5].map((star) => <button type="button" className={star <= review.rating ? 'star-button star-button--active' : 'star-button'} key={star} onClick={() => setReview({ ...review, rating: star })} aria-label={`${star} star${star > 1 ? 's' : ''}`}><Star size={20} fill="currentColor" /></button>)}</div></fieldset><label>Your review<textarea value={review.message} onChange={(event) => setReview({ ...review, message: event.target.value })} placeholder="What did we make together?" rows="4" /></label><button className="review-submit" type="submit">Post review <Send size={16} /></button></form>{reviews.length > 0 && <div className="review-list">{reviews.map((item, index) => <article className="review-card" key={`${item.name}-${index}`}><div className="review-stars">{'★'.repeat(item.rating)}</div><p>“{item.message}”</p><strong>{item.name}</strong></article>)}</div>}</div></section>
+        <section className="reviews-section" id="reviews"><div className="section-inner reviews-inner"><div className="reviews-title"><p className="eyebrow">Client notes</p><h2>Tell us how<br /><em>we did.</em></h2><p>Worked with us? Leave a quick review for the next brand finding their creative team.</p>{reviews.length > 3 && <button className="reviews-all-button" type="button" onClick={() => setShowAllReviews(true)}>See all {reviews.length} reviews <ArrowUpRight size={16} /></button>}</div><form className="review-form" onSubmit={submitReview}><label>Your name<input value={review.name} onChange={(event) => setReview({ ...review, name: event.target.value })} placeholder="Name or brand" /></label><fieldset><legend>Your rating</legend><div className="star-picker">{[1, 2, 3, 4, 5].map((star) => <button type="button" className={star <= review.rating ? 'star-button star-button--active' : 'star-button'} key={star} onClick={() => setReview({ ...review, rating: star })} aria-label={`${star} star${star > 1 ? 's' : ''}`}><Star size={20} fill="currentColor" /></button>)}</div></fieldset><label>Your review<textarea value={review.message} onChange={(event) => setReview({ ...review, message: event.target.value })} placeholder="What did we make together?" rows="4" /></label><button className="review-submit" type="submit">Post review <Send size={16} /></button></form>{reviewsLoading ? <p className="reviews-empty">Loading client notes...</p> : featuredReviews.length > 0 ? <div className="review-list">{featuredReviews.map((item) => <article className="review-card" key={item.id || item.name}><div className="review-card-top"><div className="review-stars">{'★'.repeat(item.rating)}</div><button className={likedReviews.includes(item.id) ? 'review-like review-like--active' : 'review-like'} type="button" onClick={() => toggleReviewLike(item.id)} aria-label={`${likedReviews.includes(item.id) ? 'Unlike' : 'Like'} review by ${item.name}`}><Heart size={15} fill={likedReviews.includes(item.id) ? 'currentColor' : 'none'} /> {item.likes || 0}</button></div><p>“{item.message}”</p><strong>{item.name}</strong></article>)}</div> : <p className="reviews-empty">Be the first to leave a note.</p>}</div></section>
+        {showAllReviews && <div className="reviews-modal" role="dialog" aria-modal="true" aria-labelledby="all-reviews-title"><div className="reviews-modal-panel"><div className="reviews-modal-header"><div><p className="eyebrow">The full guestbook</p><h2 id="all-reviews-title">All <em>reviews.</em></h2></div><button className="reviews-close" type="button" onClick={() => setShowAllReviews(false)} aria-label="Close all reviews"><X size={20} /></button></div><div className="reviews-modal-list">{rankedReviews.map((item) => <article className="review-card" key={item.id || item.name}><div className="review-card-top"><div className="review-stars">{'★'.repeat(item.rating)}</div><button className={likedReviews.includes(item.id) ? 'review-like review-like--active' : 'review-like'} type="button" onClick={() => toggleReviewLike(item.id)} aria-label={`${likedReviews.includes(item.id) ? 'Unlike' : 'Like'} review by ${item.name}`}><Heart size={15} fill={likedReviews.includes(item.id) ? 'currentColor' : 'none'} /> {item.likes || 0}</button></div><p>“{item.message}”</p><strong>{item.name}</strong></article>)}</div></div></div>}
       </main>
       <a className="whatsapp-float" href="https://wa.me/918105962281" target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="" /></a>
       <footer><span>PRIME REACH x Y CUTS</span><span>Video · Design · Digital media agency</span><span>© 2024</span></footer>
